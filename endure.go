@@ -3,11 +3,13 @@ package endure
 import (
 	"log/slog"
 	"net/http"
-	// pprof will be enabled in debug mode
 	"net/http/pprof"
 	"reflect"
 	"sync"
 	"time"
+
+	"golang.org/x/net/http2"
+	"golang.org/x/net/http2/h2c"
 
 	"github.com/roadrunner-server/endure/v2/graph"
 	"github.com/roadrunner-server/endure/v2/logger"
@@ -265,7 +267,7 @@ func profile() {
 
 		srv := &http.Server{
 			ReadHeaderTimeout: time.Minute * 5,
-			Handler:           mux,
+			Handler:           h2c.NewHandler(mux, &http2.Server{}),
 			Addr:              "0.0.0.0:6061",
 		}
 
